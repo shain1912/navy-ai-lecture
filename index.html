@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이브코딩과 AI 데이터 분석</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#F2F4F7; --card:#FFFFFF; --ink:#16233B; --sub:#5A6A80;
+    --navy:#123A66; --navy-soft:#3E6B9E; --gold:#B98A1F;
+    --mist:#E7EDF4; --line:#D4DAE3; --deep:#0B1B30; --chrome-ink:#C7D3E2;
+    --code-bg:#132B47; --code-ink:#D9E4F0; --code-dim:#7E93AC; --code-k:#8FC1E8;
+    --ok:#1F6E4E; --warn:#9A3B2A; --th-ink:#F4F7FB;
+    --shadow:0 8px 24px rgba(11,27,48,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E1B2C; --card:#16273D; --ink:#E7EDF5; --sub:#9DACC0;
+      --navy:#8FBBE8; --navy-soft:#6E97C4; --gold:#D9B44A;
+      --mist:#1D3049; --line:#2C405A; --deep:#081220; --chrome-ink:#9DACC0;
+      --code-bg:#0C2036; --code-ink:#D9E4F0; --code-dim:#7E93AC; --code-k:#8FC1E8;
+      --ok:#5CC091; --warn:#E08A76; --th-ink:#0B1B30;
+      --shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1B2C; --card:#16273D; --ink:#E7EDF5; --sub:#9DACC0;
+    --navy:#8FBBE8; --navy-soft:#6E97C4; --gold:#D9B44A;
+    --mist:#1D3049; --line:#2C405A; --deep:#081220; --chrome-ink:#9DACC0;
+    --code-bg:#0C2036; --code-ink:#D9E4F0; --code-dim:#7E93AC; --code-k:#8FC1E8;
+    --ok:#5CC091; --warn:#E08A76; --th-ink:#0B1B30;
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--deep);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",sans-serif;overflow:hidden}
+  #stagewrap{position:fixed;inset:0 0 50px 0;display:flex;align-items:center;justify-content:center}
+  #stage{width:1280px;height:720px;position:relative;transform-origin:center;background:var(--bg);
+    border-radius:10px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+  .slide{position:absolute;inset:0;padding:58px 72px;display:none}
+  .slide.on{display:block}
+
+  /* 애니메이션 */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes drawRule{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes pop{0%{opacity:0;transform:scale(.94)}70%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}}
+  .slide.on .eyebrow{animation:fadeUp .4s ease both}
+  .slide.on h1,.slide.on h2{animation:fadeUp .5s .06s ease both}
+  .slide.on .rule{transform-origin:left;animation:drawRule .5s .2s ease both}
+  .slide.on .cards>*{animation:fadeUp .5s ease both}
+  .slide.on .cards>*:nth-child(1){animation-delay:.22s}
+  .slide.on .cards>*:nth-child(2){animation-delay:.36s}
+  .slide.on .cards>*:nth-child(3){animation-delay:.50s}
+  .slide.on .cards>*:nth-child(4){animation-delay:.64s}
+  .slide.on table.t{animation:fadeUp .45s .2s ease both}
+  .slide.on table.t tr{animation:fadeIn .35s ease both}
+  .slide.on table.t tr:nth-child(2){animation-delay:.38s}
+  .slide.on table.t tr:nth-child(3){animation-delay:.50s}
+  .slide.on table.t tr:nth-child(4){animation-delay:.62s}
+  .slide.on table.t tr:nth-child(5){animation-delay:.74s}
+  .slide.on table.t tr:nth-child(6){animation-delay:.86s}
+  .slide.on .flowrow>*{animation:pop .45s ease both}
+  .slide.on .flowrow>*:nth-child(1){animation-delay:.20s}
+  .slide.on .flowrow>*:nth-child(2){animation-delay:.30s}
+  .slide.on .flowrow>*:nth-child(3){animation-delay:.40s}
+  .slide.on .flowrow>*:nth-child(4){animation-delay:.50s}
+  .slide.on .flowrow>*:nth-child(5){animation-delay:.60s}
+  .slide.on .flowrow>*:nth-child(6){animation-delay:.70s}
+  .slide.on .flowrow>*:nth-child(7){animation-delay:.80s}
+  .slide.on .flowrow>*:nth-child(8){animation-delay:.90s}
+  .slide.on .flowrow>*:nth-child(9){animation-delay:1.0s}
+  .slide.on .code{animation:pop .5s .25s ease both}
+  .slide.on .labelline{animation:fadeUp .45s .8s ease both}
+  .slide.on ol.steps>li{animation:fadeUp .45s ease both}
+  .slide.on ol.steps>li:nth-child(1){animation-delay:.2s}
+  .slide.on ol.steps>li:nth-child(2){animation-delay:.34s}
+  .slide.on ol.steps>li:nth-child(3){animation-delay:.48s}
+  .slide.on ol.steps>li:nth-child(4){animation-delay:.62s}
+  .slide.on .gates>*{animation:fadeUp .45s ease both}
+  .slide.on .gates>*:nth-child(1){animation-delay:.5s}
+  .slide.on .gates>*:nth-child(2){animation-delay:.62s}
+  .slide.on .gates>*:nth-child(3){animation-delay:.74s}
+  .slide.on .bigq p{animation:fadeUp .6s ease both}
+  .slide.on .bigq p:nth-child(2){animation-delay:.35s}
+  @media (prefers-reduced-motion: reduce){.slide.on *{animation:none !important}}
+
+  /* 공용 */
+  .eyebrow{font-size:18px;font-weight:700;letter-spacing:.12em;color:var(--gold)}
+  h1,h2{text-wrap:balance;line-height:1.25}
+  h2{font-size:40px;font-weight:900;margin-top:10px}
+  h2 small{font-size:22px;font-weight:700;color:var(--sub)}
+  .rule{width:56px;height:5px;background:var(--navy);border-radius:3px;margin:18px 0 26px}
+  .cards{display:flex;gap:22px;align-items:stretch}
+  .card{flex:1;background:var(--card);border-radius:14px;padding:26px 26px;box-shadow:var(--shadow);border-top:5px solid var(--navy)}
+  .card.gold{border-top-color:var(--gold)}
+  .card h3{font-size:23px;line-height:1.4;margin-bottom:10px}
+  .card p{font-size:18px;color:var(--sub);line-height:1.6}
+  .card .cond{font-size:17px;color:var(--sub);line-height:1.6}
+  .card .cond b{color:var(--ink)}
+  .card .to{display:block;margin:10px 0;color:var(--gold);font-weight:900;font-size:18px}
+  table.t{border-collapse:collapse;width:100%;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+  table.t th{background:var(--navy);color:var(--th-ink);font-size:19px;text-align:left;padding:13px 20px;font-weight:700}
+  table.t td{font-size:19px;padding:12px 20px;border-top:1px solid var(--line);line-height:1.5;vertical-align:top}
+  table.t td:first-child{font-weight:700;white-space:nowrap}
+  .labelline{position:absolute;left:72px;right:72px;bottom:36px;font-size:18px;display:flex;gap:12px;align-items:baseline}
+  .labelline .lb{flex:none;font-size:14px;font-weight:900;letter-spacing:.12em;color:var(--gold);border:1px solid var(--gold);
+    border-radius:6px;padding:3px 10px}
+  .labelline .tx{color:var(--ink);font-weight:500}
+  .flowrow{display:flex;gap:10px;align-items:stretch}
+  .fbox{flex:1;background:var(--card);border-radius:12px;padding:18px 16px;box-shadow:var(--shadow);text-align:center}
+  .fbox b{display:block;font-size:19px;margin-bottom:6px}
+  .fbox span{font-size:15px;color:var(--sub);line-height:1.5}
+  .farr{align-self:center;color:var(--gold);font-weight:900;font-size:20px;flex:none}
+  .code{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:24px 28px;
+    font-family:"IBM Plex Mono","Consolas",monospace;font-size:18px;line-height:1.8;box-shadow:var(--shadow)}
+  .code .p{color:var(--code-k)}
+  .code .c{color:var(--code-dim)}
+  .cols{display:flex;gap:36px;align-items:flex-start}
+  .grow{flex:1;min-width:0}
+  ul.plain{list-style:none;display:flex;flex-direction:column;gap:18px}
+  ul.plain li{padding-left:30px;position:relative;font-size:21px;line-height:1.5}
+  ul.plain li::before{content:"";position:absolute;left:2px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--navy)}
+  ul.plain li small{display:block;font-size:17px;color:var(--sub);margin-top:3px}
+
+  .pic{border-radius:12px;display:block;box-shadow:var(--shadow);background:#FFFFFF}
+  .slide.on .pic{animation:pop .5s .3s ease both}
+  .imgnote{font-size:14px;color:var(--sub);margin-top:8px}
+
+  /* 표지 */
+  .coverwrap{height:100%;display:flex;flex-direction:column;justify-content:center}
+  .coverwrap .flag{width:64px;height:6px;background:var(--gold);border-radius:3px;margin-bottom:26px}
+  .coverwrap h1{font-size:58px;font-weight:900}
+  .coverwrap h1 em{font-style:normal;color:var(--navy)}
+  .coverwrap .sub{margin-top:18px;font-size:23px;color:var(--sub);font-weight:500}
+  .coverwrap .meta{margin-top:44px;display:grid;grid-template-columns:96px 1fr;gap:8px 18px;font-size:18px;max-width:640px}
+  .coverwrap .meta dt{color:var(--gold);font-weight:700}
+  .coverwrap .meta dd{color:var(--ink)}
+
+  /* Contents */
+  .toc{display:flex;flex-direction:column;gap:12px;max-width:1010px}
+  .tocrow{display:flex;gap:18px;align-items:baseline;background:var(--card);border-radius:12px;padding:16px 24px;box-shadow:var(--shadow)}
+  .tocrow .no{font-weight:900;color:var(--gold);font-size:21px;min-width:36px}
+  .tocrow .tm{font-family:"IBM Plex Mono",monospace;font-size:16px;color:var(--sub);min-width:150px}
+  .tocrow b{font-size:20px;min-width:210px}
+  .tocrow span{font-size:17px;color:var(--sub)}
+  .tocrow.rest{background:var(--mist);box-shadow:none}
+
+  /* 큰 질문 */
+  .bigq{height:100%;display:flex;flex-direction:column;justify-content:center;gap:34px}
+  .bigq p{font-size:44px;font-weight:900;line-height:1.4}
+  .bigq p b{color:var(--navy)}
+
+  /* 파트 표지 */
+  .part{height:100%;display:flex;flex-direction:column;justify-content:center}
+  .part .pn{font-family:"IBM Plex Mono",monospace;font-size:20px;color:var(--gold);letter-spacing:.1em}
+  .part h2{font-size:56px;margin-top:14px}
+  .part p{margin-top:16px;font-size:22px;color:var(--sub)}
+
+  /* 연습 */
+  ol.steps{list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+  ol.steps>li{background:var(--card);border-radius:12px;padding:14px 20px 14px 58px;box-shadow:var(--shadow);position:relative;font-size:19px;line-height:1.5}
+  ol.steps>li::before{counter-increment:s;content:counter(s);position:absolute;left:18px;top:14px;width:26px;height:26px;border-radius:50%;
+    background:var(--navy);color:var(--bg);font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center}
+  ol.steps .pr{display:block;margin-top:6px;font-family:"IBM Plex Mono",monospace;font-size:16px;color:var(--navy);background:var(--mist);
+    border-radius:8px;padding:8px 12px;line-height:1.55}
+  .gates{display:flex;gap:16px}
+  .gate{flex:1;background:var(--mist);border-radius:10px;padding:12px 16px;font-size:16px;line-height:1.55}
+  .gate b{display:block;font-size:13px;font-weight:900;letter-spacing:.12em;color:var(--gold);margin-bottom:4px}
+
+  /* 정리·마무리 */
+  .kv{display:grid;grid-template-columns:150px 1fr;gap:8px 20px;font-size:19px;max-width:760px}
+  .kv dt{color:var(--gold);font-weight:700}
+
+  /* 컨트롤 */
+  #bar{position:fixed;left:0;right:0;bottom:0;height:50px;background:var(--deep);display:flex;align-items:center;gap:12px;
+    padding:0 170px 0 16px;color:var(--chrome-ink);z-index:20}
+  #foot{font-size:13px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #bar .sp{flex:1}
+  #bar button{background:transparent;border:1px solid #33507400;border-color:color-mix(in srgb, var(--chrome-ink) 40%, transparent);
+    color:var(--chrome-ink);border-radius:8px;padding:5px 13px;font-size:13px;font-family:inherit;cursor:pointer}
+  #bar button:hover{background:rgba(255,255,255,.08)}
+  #bar button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #cnt{font-variant-numeric:tabular-nums;font-size:13px;min-width:56px;text-align:center}
+  #prog{position:fixed;left:0;bottom:50px;height:4px;background:var(--gold);z-index:21;transition:width .25s}
+  #notes{position:fixed;left:0;right:0;bottom:50px;background:var(--deep);color:var(--chrome-ink);padding:16px 26px;
+    font-size:15px;line-height:1.7;display:none;z-index:19;border-top:1px solid rgba(255,255,255,.12)}
+  #notes.on{display:block}
+  #notes .lb{color:var(--gold);font-weight:700;font-size:12px;letter-spacing:.12em;margin-bottom:5px}
+  @media (prefers-reduced-motion: reduce){#prog{transition:none}}
+</style>
+</head>
+<body>
+<div id="stagewrap"><div id="stage">
+
+<!-- 1 표지 -->
+<section class="slide on" data-part="표지" data-notes="30초. 바로 본론.">
+  <img class="pic" src="img/flow_cover.jpg" alt="군함과 노트북, 로봇 일러스트" width="330"
+       style="position:absolute;right:72px;top:50%;transform:translateY(-50%)">
+  <div class="coverwrap" style="padding-right:400px">
+    <div class="flag"></div>
+    <h1>바이브코딩과 <em>AI 데이터 분석</em></h1>
+    <div class="sub">코딩 없이 말로 만드는 업무 도구 · 파일 한 장으로 끝나는 현황 분석 | 2시간</div>
+    <dl class="meta">
+      <dt>일시</dt><dd>확정 후 기입</dd>
+      <dt>장소</dt><dd>해군교육사령부 (확정 후 기입)</dd>
+      <dt>대상</dt><dd>해군교육사령부 장병·군무원</dd>
+      <dt>강사</dt><dd>조성호 · 부산대학교 AI융합교육원 강사 / KODE KOREA(코드코리아) 대표</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- 2 Contents -->
+<section class="slide" data-part="Contents" data-notes="">
+  <div class="eyebrow">Contents</div>
+  <h2>진행 순서</h2>
+  <div class="rule"></div>
+  <div class="toc">
+    <div class="tocrow"><span class="no">01</span><span class="tm">0:00 – 0:15</span><b>AI 에이전트 시대</b><span>챗봇과 에이전트의 차이 · 바이브코딩 개념</span></div>
+    <div class="tocrow"><span class="no">02</span><span class="tm">0:15 – 0:50</span><b>바이브코딩</b><span>주문 작성법 · 시연 · 연습 1(웹페이지 제작)</span></div>
+    <div class="tocrow rest"><span class="no">—</span><span class="tm">0:50 – 1:00</span><b>휴식 10분</b><span></span></div>
+    <div class="tocrow"><span class="no">03</span><span class="tm">1:00 – 1:35</span><b>AI 데이터 분석</b><span>절차 · 연습 2 · 그래프 도감 6종 · 용어 정리</span></div>
+    <div class="tocrow"><span class="no">04</span><span class="tm">1:35 – 1:50</span><b>예측 모델 개관</b><span>회귀 · 분류 · 군집 · 시계열 — 모델 6종 도감</span></div>
+    <div class="tocrow"><span class="no">05</span><span class="tm">1:50 – 2:00</span><b>보안 · 정리 · Q&amp;A</b><span>업로드 판단 기준 · 결과물 점검 · 후속 자료</span></div>
+  </div>
+</section>
+
+<!-- 3 들어가기 전에 -->
+<section class="slide" data-part="들어가기 전에" data-notes="답 받지 않고 던지는 질문. 20초씩.">
+  <div class="eyebrow">들어가기 전에…</div>
+  <div class="bigq">
+    <p>현황 보고 한 건에 드는 시간 = <b>몇 시간?</b></p>
+    <p>프로그램 제작에 코딩 지식은 <b>필수인가?</b></p>
+  </div>
+</section>
+
+<!-- 4 학습 목표 -->
+<section class="slide" data-part="학습 목표" data-notes="">
+  <div class="eyebrow">학습 목표</div>
+  <h2>2시간의 도착 지점</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>목표 1 · 바이브코딩</h3>
+      <p>바이브코딩 개념과 주문(프롬프트) 작성법 이해<br>부서 소개 웹페이지 1건 제작 · 수정 주문 경험</p></div>
+    <div class="card"><h3>목표 2 · AI 데이터 분석</h3>
+      <p>첨부 → 질문 → 검증 절차 이해 · 그래프 6종과 예측 모델 6종의 용도 구분<br>가상 체력검정 데이터 분석 · 차트 1건 산출<br><b>최종 결과물: 소개 페이지 1건 + 분석 보고 1건</b></p></div>
+  </div>
+  <div class="labelline"><span class="lb">실습 규칙</span><span class="tx">실제 군 자료 사용 금지 · 제공된 가상 데이터와 공개 정보만 사용</span></div>
+</section>
+
+<!-- 5 사전 준비 -->
+<section class="slide" data-part="사전 준비" data-notes="접속 확인 3분. 미로그인자 옆자리 페어.">
+  <div class="eyebrow">사전 준비</div>
+  <h2>시작 전 점검 3가지</h2>
+  <div class="rule"></div>
+  <ol class="steps" style="max-width:900px">
+    <li><b>claude.ai 로그인</b><br><small style="color:var(--sub)">무료 계정 가능 · 휴대전화 인증 완료 상태</small></li>
+    <li><b>크롬 브라우저</b><br><small style="color:var(--sub)">최신 버전 · 개인 스마트폰 또는 실습용 PC</small></li>
+    <li><b>예제 데이터 내려받기</b>
+      <span class="pr">https://shain1912.github.io/navy-ai-lecture/data/체력검정_가상.csv</span></li>
+  </ol>
+</section>
+
+<!-- 6 파트 01 -->
+<section class="slide" data-part="01 AI 에이전트 시대" data-notes="">
+  <div class="part">
+    <div class="pn">01 · 0:00 – 0:15 · 15분</div>
+    <h2>AI 에이전트 시대</h2>
+    <p>답변하는 AI에서 일하는 AI로 · 바이브코딩 개념</p>
+  </div>
+</section>
+
+<!-- 7 1-1 -->
+<section class="slide" data-part="01 AI 에이전트 시대" data-notes="비유 한 줄로 끝. 확장 금지.">
+  <div class="eyebrow">1-1 · 개념</div>
+  <h2>챗봇과 에이전트의 차이</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>챗봇</h3><p>답변까지 · 실행 없음 · 결과물은 사람이 직접 제작</p></div>
+    <div class="card gold"><h3>AI 에이전트</h3><p>파일 생성 · 수정 · 실행까지 · 결과물 직접 산출</p></div>
+  </div>
+  <div class="labelline"><span class="lb">비유</span><span class="tx">챗봇 = 창밖에서 레시피 불러주는 사람 · 에이전트 = 주방에 들어와 요리하는 사람</span></div>
+</section>
+
+<!-- 8 1-2 -->
+<section class="slide" data-part="01 AI 에이전트 시대" data-notes="">
+  <div class="eyebrow">1-2 · 개념</div>
+  <h2>바이브코딩(Vibe Coding) = 말로 하는 소프트웨어 제작</h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:940px">
+    <li>코드 작성 주체 = AI · 사람의 역할 = 요구 정의와 검수<small>문법 암기 불필요 · 업무 지식과 판단이 핵심 역량</small></li>
+    <li>용어 등장 2025 → 이후 업계 일반화<small>기획 → 제작 → 수정의 전 과정이 대화로 진행</small></li>
+    <li>제작 단위 = 주문 한 건<small>웹페이지 · 안내문 · 계산기 · 현황판 전부 동일 방식</small></li>
+  </ul>
+  <div class="labelline"><span class="lb">핵심</span><span class="tx">프롬프트 = 주문 · 잘 시키는 능력이 곧 제작 능력</span></div>
+</section>
+
+<!-- 9 1-3 -->
+<section class="slide" data-part="01 AI 에이전트 시대" data-notes="비용 행은 일반론 수준으로만.">
+  <div class="eyebrow">1-3 · 비교</div>
+  <h2>외주 개발 / 바이브코딩</h2>
+  <div class="rule"></div>
+  <table class="t">
+    <tr><th style="width:20%">관점</th><th>외주 개발</th><th>바이브코딩</th></tr>
+    <tr><td>기간</td><td>수 주 ~ 수 개월</td><td>당일 · 자리에서 완성</td></tr>
+    <tr><td>수정</td><td>재요청 · 대기</td><td>말 한마디 → 즉시 반영</td></tr>
+    <tr><td>비용</td><td>건당 견적</td><td>구독료 범위</td></tr>
+    <tr><td>담당</td><td>외부 업체</td><td>업무 담당자 본인</td></tr>
+    <tr><td>요구 역량</td><td>개발 지식 · 발주 경험</td><td>업무 지식 · 요구 정리</td></tr>
+  </table>
+</section>
+
+<!-- 10 파트 02 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="">
+  <img class="pic" src="img/flow_vibe.jpg" alt="말로 조립되는 웹페이지 일러스트" width="330"
+       style="position:absolute;right:72px;top:50%;transform:translateY(-50%)">
+  <div class="part" style="padding-right:400px">
+    <div class="pn">02 · 0:15 – 0:50 · 35분</div>
+    <h2>바이브코딩</h2>
+    <p>주문 작성법 · 시연 · 연습 1(웹페이지 제작 15분)</p>
+  </div>
+</section>
+
+<!-- 11 2-1 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="순서의 이유: 확인 없이 다음 주문 금지 — 검수 습관.">
+  <div class="eyebrow">2-1 · 순서</div>
+  <h2>바이브코딩 5단계</h2>
+  <div class="rule"></div>
+  <div class="flowrow">
+    <div class="fbox"><b>요구 정리</b><span>넣을 항목을 번호로</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>주문</b><span>프롬프트 입력</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>확인</b><span>결과와 요구 대조</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>수정 주문</b><span>한 번에 한 가지</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>저장 · 공유</b><span>파일 · 링크 산출</span></div>
+  </div>
+  <div class="labelline"><span class="lb">원칙</span><span class="tx">확인 없는 연속 주문 금지 · 수정은 작게 자주</span></div>
+</section>
+
+<!-- 12 2-2 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="주문 = 항목이 셀 수 있는 문장. 나쁜 예: 알아서 멋지게.">
+  <div class="eyebrow">2-2 · 주문 작성</div>
+  <h2>좋은 주문의 형식</h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="code grow"><span class="p">&gt; 부대 개방행사 안내 페이지 만들어줘.</span><br>
+<span class="p">&gt; 1) 행사명·일시·장소  2) 프로그램 시간표</span><br>
+<span class="p">&gt; 3) 오시는 길·유의사항</span><br>
+<span class="p">&gt; 남색 바탕, 어르신도 읽기 쉬운 큰 글씨로.</span><br>
+<span class="c"># 대상 명시 · 항목 번호화 · 형식(색·글씨) 지정</span></div>
+    <ul class="plain" style="flex:0 0 360px">
+      <li>무엇을 <small>결과물의 종류 한 단어</small></li>
+      <li>어떤 항목 <small>번호 목록 = 검수 기준표</small></li>
+      <li>어떤 형식 <small>색 · 글씨 크기 · 분위기</small></li>
+    </ul>
+  </div>
+  <div class="labelline"><span class="lb">기준</span><span class="tx">주문 = 항목을 셀 수 있는 문장 · "알아서 멋지게" = 결과 복불복</span></div>
+</section>
+
+<!-- 13 2-3 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="라이브 시연 5분. 수정 주문 1회 포함. 소요 시간 화면에 표시.">
+  <div class="eyebrow">2-3 · 시연</div>
+  <h2>안내 페이지 라이브 제작 <small>· 5분</small></h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:900px">
+    <li>앞의 주문 그대로 입력 → 제작 과정 실시간 관찰</li>
+    <li>수정 주문 1회 시연<small>"프로그램 표에 담당 부서 열 추가해줘"</small></li>
+    <li>소요 시간 기록 → 외주 개발 기간과 대조</li>
+  </ul>
+  <div class="labelline"><span class="lb">확인</span><span class="tx">주문의 번호 항목과 결과 화면 1:1 대조</span></div>
+</section>
+
+<!-- 14 연습 1 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="15분 엄수. 미완료자는 휴식 시간에 개별 지원. 순회하며 주문 문장 점검.">
+  <div class="eyebrow">연습 단계 1 · 15분</div>
+  <h2>내 부서 소개 페이지 제작</h2>
+  <div class="rule"></div>
+  <ol class="steps">
+    <li>claude.ai 대화창에 주문 입력
+      <span class="pr">&gt; 우리 부서 소개 페이지 만들어줘. 1) 부서명과 슬로건 2) 주요 업무 3가지 카드 3) 연락처. 해군 느낌의 남색 디자인, 큰 글씨.</span></li>
+    <li>결과 확인 → 수정 주문 1회 이상
+      <span class="pr">&gt; 주요 업무 카드에 아이콘 넣고, 슬로건을 더 크게.</span></li>
+    <li>내용 교체 — 공개 가능한 부서 정보만 입력</li>
+    <li>완성 화면 저장 · 옆자리와 상호 확인</li>
+  </ol>
+  <div class="gates" style="margin-top:16px">
+    <div class="gate"><b>합격 조건</b>페이지 1건 · 수정 주문 1회 이상 · 비공개 정보 0건</div>
+    <div class="gate"><b>확인 포인트</b>주문의 번호 항목 반영 여부 · 수정 전후 차이</div>
+    <div class="gate"><b>진행</b>미완료자 → 휴식 시간 개별 지원</div>
+  </div>
+</section>
+
+<!-- 15 2-4 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="연습 중 실제로 나온 사례를 표에 얹어 설명.">
+  <div class="eyebrow">2-4 · 실패 유형과 처방</div>
+  <h2>주문이 어긋나는 세 가지 경우</h2>
+  <div class="rule"></div>
+  <table class="t">
+    <tr><th style="width:26%">증상</th><th style="width:32%">원인</th><th>처방</th></tr>
+    <tr><td>실행마다 결과 상이</td><td>주문 모호 · 항목 미지정</td><td>요구 항목 번호화 · 형식 명시</td></tr>
+    <tr><td>요구 일부 누락</td><td>한 주문에 요구 과다</td><td>주문 분할 · 한 번에 한 가지 수정</td></tr>
+    <tr><td>과잉 구현 · 엉뚱한 기능</td><td>범위 미지정</td><td>"이 항목만" 범위 한정 · 불필요 기능 삭제 주문</td></tr>
+  </table>
+</section>
+
+<!-- 16 02 정리 -->
+<section class="slide" data-part="02 바이브코딩" data-notes="휴식 시각 엄수 공지.">
+  <div class="eyebrow">02 정리</div>
+  <h2>바이브코딩 요약</h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:900px">
+    <li>에이전트 = 주방에 들어와 요리하는 사람 · 결과물 직접 산출</li>
+    <li>주문 = 항목을 셀 수 있는 문장 · 번호 목록이 검수 기준표</li>
+    <li>수정은 작게 자주 · 확인 없는 연속 주문 금지</li>
+  </ul>
+  <div class="labelline"><span class="lb">휴식</span><span class="tx">10분 · 1:00 시작 · 다음 03 AI 데이터 분석</span></div>
+</section>
+
+<!-- 17 파트 03 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <img class="pic" src="img/flow_data.jpg" alt="스프레드시트에서 차트가 솟아오르는 일러스트" width="330"
+       style="position:absolute;right:72px;top:50%;transform:translateY(-50%)">
+  <div class="part" style="padding-right:400px">
+    <div class="pn">03 · 1:00 – 1:35 · 35분</div>
+    <h2>AI 데이터 분석</h2>
+    <p>첨부 → 질문 → 검증 · 연습 2 · 그래프 도감 · 용어 정리</p>
+  </div>
+</section>
+
+<!-- 18 3-1 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <div class="eyebrow">3-1 · 개념</div>
+  <h2>분석의 새 방식 = 파일을 주고 질문</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>첨부</h3><p>CSV · 엑셀 파일을 대화창에 · 재료 전달</p></div>
+    <div class="card"><h3>질문</h3><p>한국어 질문 = 주문 · 함수 · 피벗 지식 불필요</p></div>
+    <div class="card gold"><h3>검증</h3><p>핵심 수치 원본 대조 · 검증기 = 간 보는 사람</p></div>
+  </div>
+  <div class="labelline"><span class="lb">핵심</span><span class="tx">분석 도구의 조작법 → 데이터에 던질 질문으로 역량 이동</span></div>
+</section>
+
+<!-- 19 3-2 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <div class="eyebrow">3-2 · 비교</div>
+  <h2>수작업 집계 / AI 분석</h2>
+  <div class="rule"></div>
+  <table class="t">
+    <tr><th style="width:20%">관점</th><th>수작업(엑셀)</th><th>AI 분석</th></tr>
+    <tr><td>집계</td><td>함수 · 피벗 직접 작성</td><td>질문 한 줄</td></tr>
+    <tr><td>차트</td><td>서식 수동 조정</td><td>요청 즉시 생성 · 형식 지정 가능</td></tr>
+    <tr><td>보고서</td><td>별도 문서 작성</td><td>요약문까지 일괄 산출</td></tr>
+    <tr><td>반복 업무</td><td>매월 같은 작업 반복</td><td>같은 주문 재사용</td></tr>
+    <tr><td>요구 역량</td><td>엑셀 숙련도</td><td>질문 설계 · 수치 검증</td></tr>
+  </table>
+</section>
+
+<!-- 20 3-3 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="1단계가 보안 게이트. 04에서 다시 강조 예고.">
+  <div class="eyebrow">3-3 · 순서</div>
+  <h2>AI 데이터 분석 5단계</h2>
+  <div class="rule"></div>
+  <div class="flowrow">
+    <div class="fbox"><b>익명화 확인</b><span>업로드 가능 여부 판단</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>파일 첨부</b><span>CSV · 엑셀</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>탐색 질문</b><span>분포 · 평균 · 추세</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>차트 요청</b><span>형식 · 단위 지정</span></div>
+    <div class="farr">→</div>
+    <div class="fbox"><b>보고서 주문</b><span>요약 한 장</span></div>
+  </div>
+  <div class="labelline"><span class="lb">원칙</span><span class="tx">1단계 통과 못 하는 파일 = 업로드 금지 · 상세 기준은 04</span></div>
+</section>
+
+<!-- 21 3-4 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="질문의 단계: 넓게 → 좁게 → 근거.">
+  <div class="eyebrow">3-4 · 주문 예시</div>
+  <h2>분석 질문의 3단 구성</h2>
+  <div class="rule"></div>
+  <div class="code" style="max-width:960px"><span class="c"># 1단 · 전체 파악</span><br>
+<span class="p">&gt; 이 체력검정 데이터의 구조를 요약하고, 등급 분포를 알려줘.</span><br>
+<span class="c"># 2단 · 좁혀 들어가기</span><br>
+<span class="p">&gt; 연령대별 평균 기록을 종목별로 표로 정리해줘.</span><br>
+<span class="c"># 3단 · 근거와 시각화</span><br>
+<span class="p">&gt; 불합격률이 가장 높은 종목을 찾고, 근거 수치와 함께 막대 차트로 보여줘.</span></div>
+  <div class="labelline"><span class="lb">기준</span><span class="tx">넓게 → 좁게 → 근거 · 차트에는 제목과 단위 지정</span></div>
+</section>
+
+<!-- 22 연습 2 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="15분 엄수. 수치 검증 단계 건너뛰는 수강생 주의. 완료자는 자기 업무 데이터 구상 메모.">
+  <div class="eyebrow">연습 단계 2 · 15분</div>
+  <h2>가상 체력검정 데이터 분석</h2>
+  <div class="rule"></div>
+  <ol class="steps">
+    <li>예제 파일 첨부 — 사전 준비에서 내려받은 체력검정_가상.csv</li>
+    <li>탐색 질문
+      <span class="pr">&gt; 이 데이터에서 등급 분포와 연령대별 평균 기록을 정리해줘.</span></li>
+    <li>차트 요청
+      <span class="pr">&gt; 불합격률이 가장 높은 종목을 막대 차트로, 제목과 단위 포함해서.</span></li>
+    <li>보고서 주문 + 수치 1개 원본 대조
+      <span class="pr">&gt; 지휘부 보고용 한 장 요약으로 정리해줘.</span></li>
+  </ol>
+  <div class="gates" style="margin-top:16px">
+    <div class="gate"><b>합격 조건</b>차트 1건 · 요약 보고 1건 · 원본 대조 수치 1개</div>
+    <div class="gate"><b>확인 포인트</b>차트 제목 · 단위 · 요약문의 수치 근거</div>
+    <div class="gate"><b>진행</b>완료자 → 자기 업무 데이터 구상 메모</div>
+  </div>
+</section>
+
+<!-- 23 3-5 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <div class="eyebrow">3-5 · 산출 형식</div>
+  <h2>보고까지 한 번에</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>차트</h3><p>근거 시각화 · 형식과 단위는 주문으로 지정</p></div>
+    <div class="card"><h3>대시보드(HTML)</h3><p>상시 조회용 화면 · "현황판으로 만들어줘"</p></div>
+    <div class="card gold"><h3>요약 보고</h3><p>지휘부 전달용 한 장 · 수치 검증 후 반출</p></div>
+  </div>
+  <div class="labelline"><span class="lb">기준</span><span class="tx">보고서의 모든 수치 = 원본 대조 후 사용</span></div>
+</section>
+
+<!-- 3-6 그래프 선택 기준 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="도감 7장은 레퍼런스 — 장당 30초, 빠르게. 상세 설명은 필요 슬라이드에서만 정지.">
+  <div class="eyebrow">3-6 · 그래프 선택</div>
+  <h2>목적이 그래프를 결정</h2>
+  <div class="rule"></div>
+  <table class="t" style="max-width:1010px">
+    <tr><th style="width:30%">목적</th><th style="width:26%">그래프</th><th>대표 질문</th></tr>
+    <tr><td>항목 간 크기 비교</td><td>막대그래프</td><td>어느 등급이 가장 많은가</td></tr>
+    <tr><td>시간 흐름 · 추세</td><td>선그래프</td><td>기록의 개선 추세는</td></tr>
+    <tr><td>분포 모양 · 쏠림</td><td>히스토그램</td><td>기록이 어디에 몰려 있는가</td></tr>
+    <tr><td>집단 간 분포 비교</td><td>박스플롯</td><td>연령대별 편차는</td></tr>
+    <tr><td>두 변수의 관계</td><td>산점도</td><td>근력과 지구력의 상관은</td></tr>
+    <tr><td>교차 비율의 농도</td><td>히트맵</td><td>어느 조합이 취약 지점인가</td></tr>
+  </table>
+  <div class="labelline"><span class="lb">기준</span><span class="tx">주문에 그래프 이름 지정 = 원하는 형태 확정 · 이하 6장 = 도감</span></div>
+</section>
+
+<!-- 도감 1 막대 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="">
+  <div class="eyebrow">그래프 도감 1/6 · matplotlib</div>
+  <h2>막대그래프 <small>· 항목 간 비교</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 범주별 크기 비교<small>등급 · 소속 · 종목별 건수와 평균</small></li>
+      <li>읽는 법 = 최장 막대와 격차<small>값 표시로 눈대중 제거</small></li>
+      <li>함정 = 세로축 0 미시작 = 격차 과장</li>
+    </ul>
+    <img class="pic" src="img/chart_bar.png" alt="등급 분포 막대그래프" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 등급별 인원을 막대그래프로 그려줘. 막대 위에 값 표시.</span></div>
+</section>
+
+<!-- 도감 2 선 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="">
+  <div class="eyebrow">그래프 도감 2/6 · matplotlib</div>
+  <h2>선그래프 <small>· 시간 흐름과 추세</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 월별 · 분기별 변화 추적<small>측정월별 평균 · 소요 추이</small></li>
+      <li>읽는 법 = 방향과 기울기<small>기울기 급변 지점 = 원인 질문 대상</small></li>
+      <li>함정 = 점 2~3개로 추세 단정</li>
+    </ul>
+    <img class="pic" src="img/chart_line.png" alt="측정월별 평균 기록 선그래프" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 측정월별 평균 기록을 선그래프로, 값 표시해줘.</span></div>
+</section>
+
+<!-- 도감 3 히스토그램 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="평균-중앙값 벌어짐 = 쏠림 신호 — 용어 슬라이드 예고.">
+  <div class="eyebrow">그래프 도감 3/6 · matplotlib</div>
+  <h2>히스토그램 <small>· 분포의 모양</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 값의 쏠림과 퍼짐 확인<small>기록이 몰린 구간 · 꼬리의 길이</small></li>
+      <li>읽는 법 = 봉우리 위치 · 평균과 중앙값의 간격<small>간격 큼 = 극단값의 영향</small></li>
+      <li>함정 = 구간 폭에 따라 인상 변화</li>
+    </ul>
+    <img class="pic" src="img/chart_hist.png" alt="기록 분포 히스토그램" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 팔굽혀펴기 기록의 분포를 히스토그램으로, 평균선 포함해서.</span></div>
+</section>
+
+<!-- 도감 4 박스플롯 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="">
+  <div class="eyebrow">그래프 도감 4/6 · seaborn</div>
+  <h2>박스플롯 <small>· 집단 간 분포 비교</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 여러 집단의 분포 한눈 비교<small>연령대 · 소속별 기록 편차</small></li>
+      <li>읽는 법 = 상자 = 가운데 50% · 바깥 점 = 이상치</li>
+      <li>함정 = 평균 한 숫자만으로 집단 비교</li>
+    </ul>
+    <img class="pic" src="img/chart_box.png" alt="연령대별 기록 박스플롯" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 연령대별 3km 기록을 박스플롯으로 비교해줘.</span></div>
+</section>
+
+<!-- 도감 5 산점도 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="상관과 인과 구분 — 4파트 회귀로 연결되는 개념.">
+  <div class="eyebrow">그래프 도감 5/6 · seaborn</div>
+  <h2>산점도 <small>· 두 변수의 관계</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 두 수치의 동반 이동 확인<small>근력 - 지구력 · 훈련시간 - 기록</small></li>
+      <li>읽는 법 = 우상향 = 양의 상관 · 우하향 = 음의 상관</li>
+      <li>함정 = 상관 ≠ 인과<small>같이 움직임 ≠ 원인과 결과</small></li>
+    </ul>
+    <img class="pic" src="img/chart_scatter.png" alt="두 종목 기록 산점도" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 팔굽혀펴기와 달리기 기록의 관계를 산점도와 추세선으로.</span></div>
+</section>
+
+<!-- 도감 6 히트맵 -->
+<section class="slide" data-part="03 AI 데이터 분석 · 그래프 도감" data-notes="진한 칸 짚기 = 관리 우선순위 도출 시연.">
+  <div class="eyebrow">그래프 도감 6/6 · seaborn</div>
+  <h2>히트맵 <small>· 교차표의 농도</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>용도 = 두 범주 조합의 취약 지점 탐지<small>연령대 × 종목 불합격률</small></li>
+      <li>읽는 법 = 진한 칸 = 문제 지점 = 관리 우선순위</li>
+      <li>활용 = 훈련 계획 수립의 근거 자료</li>
+    </ul>
+    <img class="pic" src="img/chart_heatmap.png" alt="연령대별 종목별 불합격률 히트맵" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 연령대별 · 종목별 불합격률을 히트맵으로 정리해줘.</span></div>
+</section>
+
+<!-- 3-7 용어 1 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="AI의 분석 답변에 등장하는 용어 — 읽는 눈 확보가 목적.">
+  <div class="eyebrow">3-7 · 용어 정리</div>
+  <h2>기초 통계 용어 6</h2>
+  <div class="rule"></div>
+  <table class="t" style="max-width:1010px">
+    <tr><th style="width:22%">용어</th><th>뜻 · 주의점</th></tr>
+    <tr><td>평균</td><td>전체 합 ÷ 인원 · 극단값에 민감</td></tr>
+    <tr><td>중앙값</td><td>줄 세웠을 때 가운데 값 · 극단값에 강함</td></tr>
+    <tr><td>표준편차</td><td>흩어짐의 크기 · 클수록 편차 큰 집단</td></tr>
+    <tr><td>이상치</td><td>무리에서 동떨어진 값 · 오기입 또는 특이 사례 → 확인 후 처리</td></tr>
+    <tr><td>결측치</td><td>비어 있는 칸 · 제외 또는 보완 — 처리 방식 확인 필수</td></tr>
+    <tr><td>상관관계</td><td>같이 움직이는 정도 · 인과관계와 별개</td></tr>
+  </table>
+</section>
+
+<!-- 3-8 용어 2 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <div class="eyebrow">3-8 · 용어 정리</div>
+  <h2>데이터 다루기 용어 6</h2>
+  <div class="rule"></div>
+  <table class="t" style="max-width:1010px">
+    <tr><th style="width:22%">용어</th><th>뜻 · 주의점</th></tr>
+    <tr><td>범주형 / 수치형</td><td>나뉘는 값(소속 · 등급) / 재는 값(기록 · 시간)</td></tr>
+    <tr><td>피벗(교차표)</td><td>두 기준으로 접어 집계한 표 · 히트맵의 원천</td></tr>
+    <tr><td>시계열</td><td>시간 순서 데이터 · 추세와 계절성 분석 대상</td></tr>
+    <tr><td>모집단 / 표본</td><td>전체 / 일부 · 표본 결론의 일반화 주의</td></tr>
+    <tr><td>익명화</td><td>개인 식별 정보 제거 · 업로드 전 필수 절차</td></tr>
+    <tr><td>대시보드</td><td>핵심 지표 한 화면 · 상시 조회용 산출물</td></tr>
+  </table>
+</section>
+
+<!-- 24 03 정리 -->
+<section class="slide" data-part="03 AI 데이터 분석" data-notes="">
+  <div class="eyebrow">03 정리</div>
+  <h2>AI 데이터 분석 요약</h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:900px">
+    <li>절차 = 익명화 확인 → 첨부 → 질문 → 차트 → 보고서</li>
+    <li>그래프 선택 = 목적 기준 · 주문에 이름 지정</li>
+    <li>수치 검증 없는 보고 금지 · 검증기 = 간 보는 사람</li>
+  </ul>
+  <div class="labelline"><span class="lb">다음</span><span class="tx">04 예측 모델 개관 · 1:35</span></div>
+</section>
+
+<!-- 파트 04 예측 모델 -->
+<section class="slide" data-part="04 예측 모델 개관" data-notes="">
+  <div class="part">
+    <div class="pn">04 · 1:35 – 1:50 · 15분</div>
+    <h2>예측 모델 개관</h2>
+    <p>과거 데이터로 다음을 추정하는 여섯 가지 도구</p>
+  </div>
+</section>
+
+<!-- 4-1 예측 개념 -->
+<section class="slide" data-part="04 예측 모델 개관" data-notes="모델 도감 6장 = 장당 1분. 이름과 용도만 남기면 성공.">
+  <div class="eyebrow">4-1 · 개념</div>
+  <h2>예측 = 과거 데이터의 패턴을 앞으로 연장</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>지도학습</h3><p>정답 붙은 과거 데이터로 학습<br>회귀 = 숫자 예측 · 분류 = 합격/불합격 판정</p></div>
+    <div class="card gold"><h3>비지도학습</h3><p>정답 없이 구조 발견<br>군집 = 비슷한 것끼리 자동 그룹</p></div>
+  </div>
+  <div class="labelline"><span class="lb">핵심</span><span class="tx">"예측해줘" 한 마디로 모델 자동 선택 · 이름을 알면 주문과 검증이 정확</span></div>
+</section>
+
+<!-- 모델 1 선형 회귀 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="">
+  <div class="eyebrow">모델 도감 1/6 · 회귀</div>
+  <h2>선형 회귀 <small>· 직선으로 숫자 예측</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = 점들을 가장 잘 지나는 직선 한 개</li>
+      <li>용도 = 훈련량 → 기록 · 예산 → 소요 추정</li>
+      <li>주의 = 직선 관계일 때만 유효 · 범위 밖 외삽 주의</li>
+    </ul>
+    <img class="pic" src="img/model_linreg.png" alt="선형 회귀 예측 그래프" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 훈련 주차별 기록으로 14주차 예상 기록을 예측해줘.</span></div>
+</section>
+
+<!-- 모델 2 로지스틱 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="이름은 회귀지만 하는 일은 분류 — 혼동 포인트 언급.">
+  <div class="eyebrow">모델 도감 2/6 · 분류</div>
+  <h2>로지스틱 회귀 <small>· 확률로 합격/불합격 판정</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = S자 확률 곡선 · 50% 경계로 판정</li>
+      <li>용도 = 합격 확률 · 중도 탈락 위험 추정</li>
+      <li>특징 = 결과 = 0~100% 확률 · 근거 제시 용이</li>
+    </ul>
+    <img class="pic" src="img/model_logistic.png" alt="로지스틱 회귀 확률 곡선" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 훈련시간에 따른 합격 확률 곡선을 그려줘.</span></div>
+</section>
+
+<!-- 모델 3 의사결정나무 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="">
+  <div class="eyebrow">모델 도감 3/6 · 분류</div>
+  <h2>의사결정나무 <small>· 질문의 연속으로 판정</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = 기준값 질문으로 가지치기 분기</li>
+      <li>특징 = 판정 근거가 그림 한 장 = 보고에 유리</li>
+      <li>주의 = 지나친 깊이 = 과거 암기(과적합)</li>
+    </ul>
+    <img class="pic" src="img/model_tree.png" alt="의사결정나무 다이어그램" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 합격 여부를 나누는 핵심 기준을 나무 그림으로 보여줘.</span></div>
+</section>
+
+<!-- 모델 4 랜덤 포레스트 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="">
+  <div class="eyebrow">모델 도감 4/6 · 분류·회귀</div>
+  <h2>랜덤 포레스트 <small>· 나무 여러 그루의 다수결</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = 서로 다른 나무 수백 그루 → 다수결</li>
+      <li>특징 = 단일 나무보다 안정 · 실무 기본기</li>
+      <li>주의 = 판정 근거 설명은 단일 나무보다 불리</li>
+    </ul>
+    <img class="pic" src="img/model_forest.png" alt="랜덤 포레스트 다이어그램" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 랜덤 포레스트로 예측하고, 중요한 변수 순위를 알려줘.</span></div>
+</section>
+
+<!-- 모델 5 k-평균 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="">
+  <div class="eyebrow">모델 도감 5/6 · 군집</div>
+  <h2>k-평균 군집 <small>· 비슷한 인원끼리 자동 그룹</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = 거리 기준 k개 그룹 자동 형성</li>
+      <li>용도 = 맞춤 훈련반 편성 · 유형 분류</li>
+      <li>특징 = 정답 없이 구조 발견 = 비지도학습</li>
+    </ul>
+    <img class="pic" src="img/model_kmeans.png" alt="k-평균 군집 산점도" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 인원을 특성이 비슷한 3개 그룹으로 나누고 그룹별 특징을 요약해줘.</span></div>
+</section>
+
+<!-- 모델 6 시계열 -->
+<section class="slide" data-part="04 예측 모델 개관 · 모델 도감" data-notes="예측값 단독 보고 금지 — 범위와 함께.">
+  <div class="eyebrow">모델 도감 6/6 · 시계열</div>
+  <h2>시계열 예측 <small>· 추세와 계절성의 연장</small></h2>
+  <div class="rule"></div>
+  <div class="cols">
+    <ul class="plain grow">
+      <li>원리 = 추세 + 계절성 분해 → 앞으로 연장</li>
+      <li>용도 = 정비 소요 · 보급 수요 · 지원율 전망</li>
+      <li>주의 = 예측 = 오차 범위와 함께 · 급변 이벤트 반영 불가</li>
+    </ul>
+    <img class="pic" src="img/model_timeseries.png" alt="시계열 예측 그래프" width="560">
+  </div>
+  <div class="labelline"><span class="lb">주문</span><span class="tx">&gt; 월별 실적으로 다음 분기 소요를 예측해줘. 오차 범위 포함.</span></div>
+</section>
+
+<!-- 04 정리 -->
+<section class="slide" data-part="04 예측 모델 개관" data-notes="">
+  <div class="eyebrow">04 정리</div>
+  <h2>예측 모델 요약</h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:900px">
+    <li>숫자 예측 = 회귀 · 판정 = 분류 · 그룹 발견 = 군집 · 전망 = 시계열</li>
+    <li>모델 이름 지정 = 정확한 주문과 검증의 출발점</li>
+    <li>예측값 보고 = 오차 범위와 근거 동반</li>
+  </ul>
+  <div class="labelline"><span class="lb">다음</span><span class="tx">05 보안 · 정리 · Q&amp;A · 1:50</span></div>
+</section>
+
+<!-- 파트 05 -->
+<section class="slide" data-part="05 보안·정리" data-notes="">
+  <div class="part">
+    <div class="pn">05 · 1:50 – 2:00 · 10분</div>
+    <h2>보안 수칙과 업무 적용</h2>
+    <p>업로드 판단 기준 · 적용 우선순위 · 정리</p>
+  </div>
+</section>
+
+<!-- 26 4-1 -->
+<section class="slide" data-part="05 보안·정리" data-notes="내부망·국방망 정책은 부대 지침 우선 — 구두 안내. 질문 많은 구간.">
+  <div class="eyebrow">5-1 · 원칙</div>
+  <h2>업로드 판단 기준</h2>
+  <div class="rule"></div>
+  <div class="cols">
+  <table class="t grow">
+    <tr><th style="width:50%">업로드 금지</th><th>업로드 가능</th></tr>
+    <tr><td>비밀 · 군사보안 자료 전체</td><td>공개 자료 · 가상 데이터</td></tr>
+    <tr><td>작전 · 부대 편성 · 시설 정보</td><td>대외 공개된 행사 · 안내 정보</td></tr>
+    <tr><td>장병 개인정보(군번 · 주민번호 · 연락처)</td><td>익명화된 집계치 · 서식의 틀</td></tr>
+  </table>
+  <img class="pic" src="img/flow_security.jpg" alt="잠긴 금고와 업로드 가능한 자료의 구분" width="330">
+  </div>
+  <div class="labelline"><span class="lb">원칙</span><span class="tx">외부 공개 가능 여부 = 업로드 가능 여부 · 판단 곤란 시 보안담당자 확인</span></div>
+</section>
+
+<!-- 27 4-2 -->
+<section class="slide" data-part="05 보안·정리" data-notes="각자 업무 하나 대입해 보게 10초 멈춤.">
+  <div class="eyebrow">5-2 · 판단</div>
+  <h2>내 업무 적용 기준</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>반복 안내 · 서식</h3><p class="cond"><b>조건</b> · 매번 비슷한 문서 제작<span class="to">→</span><b>결론</b> · 바이브코딩으로 틀 제작 후 재사용</p></div>
+    <div class="card"><h3>집계 · 현황 보고</h3><p class="cond"><b>조건</b> · 수치 정리와 요약 반복<span class="to">→</span><b>결론</b> · 익명화 후 AI 분석</p></div>
+    <div class="card"><h3>비밀 · 민감 정보</h3><p class="cond"><b>조건</b> · 업로드 금지 항목 포함<span class="to">→</span><b>결론</b> · 기존 방식 유지</p></div>
+  </div>
+</section>
+
+<!-- 28 Q&A -->
+<section class="slide" data-part="05 정리·Q&A" data-notes="미해결 질문은 이메일로 수집.">
+  <div class="eyebrow">05 · Q&amp;A</div>
+  <div class="bigq" style="gap:26px">
+    <p>질문</p>
+    <p style="font-size:22px;font-weight:500;color:var(--sub)">seongho.cho@kodekorea.kr · 미해결 질문 → 후속 자료로 회신</p>
+  </div>
+</section>
+
+<!-- 29 정리 -->
+<section class="slide" data-part="05 정리·Q&A" data-notes="학습 목표 슬라이드와 1:1 대응 확인.">
+  <div class="eyebrow">정리</div>
+  <h2>오늘의 결과물</h2>
+  <div class="rule"></div>
+  <div class="cards">
+    <div class="card"><h3>부서 소개 페이지 1건</h3><p>주문 → 확인 → 수정의 바이브코딩 순서 체득</p></div>
+    <div class="card"><h3>데이터 분석 보고 1건</h3><p>첨부 → 질문 → 차트 → 요약 · 수치 검증 포함</p></div>
+    <div class="card gold"><h3>업로드 판단 기준</h3><p>외부 공개 가능 여부 = 업로드 가능 여부</p></div>
+  </div>
+</section>
+
+<!-- 30 마무리 -->
+<section class="slide" data-part="05 정리·Q&A" data-notes="">
+  <div class="eyebrow">마무리</div>
+  <h2>다음 단계</h2>
+  <div class="rule"></div>
+  <ul class="plain" style="max-width:900px">
+    <li>이번 주 과제 = 자기 업무 데이터 1건 익명화 → 분석 → 부서 공유</li>
+  </ul>
+  <dl class="kv" style="margin-top:30px">
+    <dt>연락처</dt><dd>seongho.cho@kodekorea.kr · kodekorea.kr · github.com/shain1912</dd>
+    <dt>후속 자료</dt><dd>강의 슬라이드 https://shain1912.github.io/navy-ai-lecture/</dd>
+    <dt></dt><dd>예제 데이터 · 오늘 사용한 주문(프롬프트) 모음 — 같은 주소에 게시</dd>
+  </dl>
+</section>
+
+</div></div>
+
+<div id="prog"></div>
+<div id="notes"><div class="lb">강사 노트</div><div id="notetext"></div></div>
+<div id="bar">
+  <span id="foot">바이브코딩과 AI 데이터 분석</span>
+  <span class="sp"></span>
+  <button id="bTheme" aria-label="테마 전환">테마</button>
+  <button id="bPrev" aria-label="이전 슬라이드">← 이전</button>
+  <span id="cnt">1 / 30</span>
+  <button id="bNext" aria-label="다음 슬라이드">다음 →</button>
+  <button id="bNote" aria-label="강사 노트 열기/닫기">노트 (N)</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0, N = slides.length;
+  var cnt = document.getElementById('cnt');
+  var prog = document.getElementById('prog');
+  var notes = document.getElementById('notes');
+  var notetext = document.getElementById('notetext');
+  var foot = document.getElementById('foot');
+
+  function show(n, skipHash){
+    n = Math.max(0, Math.min(N-1, n));
+    slides[i].classList.remove('on');
+    i = n;
+    slides[i].classList.add('on');
+    cnt.textContent = (i+1) + ' / ' + N;
+    prog.style.width = ((i+1)/N*100) + '%';
+    notetext.textContent = slides[i].getAttribute('data-notes') || '(노트 없음)';
+    foot.textContent = '바이브코딩과 AI 데이터 분석 | ' + (slides[i].getAttribute('data-part') || '') + ' | ' +
+      String(i+1).padStart(2,'0') + ' / ' + N;
+    if (!skipHash) { try{ history.replaceState(null, '', '#' + (i+1)); }catch(e){} }
+  }
+  function fit(){
+    var w = innerWidth, h = innerHeight - 50;
+    var s = Math.min(w/1300, h/740);
+    document.getElementById('stage').style.transform = 'scale(' + s + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  document.getElementById('bPrev').onclick = function(){ show(i-1); };
+  document.getElementById('bNext').onclick = function(){ show(i+1); };
+  document.getElementById('bNote').onclick = function(){ notes.classList.toggle('on'); };
+  document.getElementById('bTheme').onclick = function(){
+    var r = document.documentElement;
+    var cur = r.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : cur === 'light' ? 'dark'
+      : (matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+    r.setAttribute('data-theme', next);
+    try{ localStorage.setItem('navy-theme', next); }catch(e){}
+  };
+  addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(i+1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(i-1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(N-1);
+    else if (e.key === 'n' || e.key === 'N') notes.classList.toggle('on');
+  });
+  addEventListener('hashchange', function(){
+    var h = parseInt(location.hash.slice(1), 10);
+    if (h >= 1 && h <= N && h - 1 !== i) show(h-1, true);
+  });
+  var sx = null;
+  addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive:true});
+  addEventListener('touchend', function(e){
+    if (sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx;
+    if (dx < -40) show(i+1); else if (dx > 40) show(i-1);
+    sx = null;
+  }, {passive:true});
+
+  try{
+    var t = localStorage.getItem('navy-theme');
+    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+  }catch(e){}
+  var start = parseInt(location.hash.slice(1), 10);
+  show((start >= 1 && start <= N) ? start - 1 : 0, true);
+})();
+</script>
+</body>
+</html>
